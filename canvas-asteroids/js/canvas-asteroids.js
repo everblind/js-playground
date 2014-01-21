@@ -200,7 +200,7 @@ function generateThrustParticle()
 {
 	var p = particlePool.getElement();
 
-	//if the particle pool doesn't have more particles, will return 'null'.
+	//if the particle pool doesn't have more elements, will return 'null'.
 
 	if(!p) return;
 
@@ -212,7 +212,7 @@ function generateThrustParticle()
 	p.vel.setAngle(ship.angle + (1 - Math.random() * 2) * (Math.PI / 18));
 	p.vel.mul(-1);
 
-	//particles[particles.length] = p; = particles.push(p);
+	//particles[particles.length] = p; same as: particles.push(p);
 
 	particles[particles.length] = p;
 }
