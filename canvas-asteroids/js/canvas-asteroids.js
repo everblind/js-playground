@@ -13,12 +13,16 @@ var ship;
 var particlePool;
 var particles;
 
+var bulletPool;
+var bullets;
+
 //keyboard vars
 
 var keyLeft = false;
 var keyUp = false;
 var keyRight = false;
 var keyDown = false;
+var keySpace = false;
 
 window.getAnimationFrame =
 window.requestAnimationFrame ||
@@ -40,6 +44,7 @@ window.onload = function()
 
 	keyboardInit();
 	particleInit();
+	bulletInit();
 	shipInit();
 
 	loop();
@@ -97,7 +102,7 @@ function keyboardInit()
 			//key Space
 			case 32:
 
-
+			keySpace = true;
 
 			break;
 		}
@@ -142,7 +147,7 @@ function keyboardInit()
 			//key Space
 			case 32:
 
-
+			keySpace = false;
 
 			break;
 		}
@@ -155,15 +160,22 @@ function particleInit()
 	particles = [];
 }
 
+function bulletInit()
+{
+	bulletPool = Pool.create(Bullet, 100);
+	bullets = [];
+}
+
 function shipInit()
 {
-	ship = Ship.create(screenWidth >> 1, screenHeight >> 1);
+	ship = Ship.create(screenWidth >> 1, screenHeight >> 1, this);
 }
 
 function loop()
 {
 	updateShip();
 	updateParticles();
+	updateBullets();
 	render();
 
 	getAnimationFrame(loop);
@@ -173,6 +185,7 @@ function updateShip()
 {
 	ship.update();
 
+	if(keySpace) ship.shoot();
 	if(keyLeft) ship.angle -= 0.1;
 	if(keyRight) ship.angle += 0.1;
 
@@ -204,10 +217,9 @@ function generateThrustParticle()
 
 	if(!p) return;
 
-	p.radius = Math.random() * 2 + 1;
-	p.color = '#F0EE00';
+	p.radius = Math.random() * 3 + 2;
 	p.lifeSpan = 80;
-	p.pos.setXY(ship.pos.getX() + Math.cos(ship.angle) * -12, ship.pos.getY() + Math.sin(ship.angle) * -12);
+	p.pos.setXY(ship.pos.getX() + Math.cos(ship.angle) * -14, ship.pos.getY() + Math.sin(ship.angle) * -14);
 	p.vel.setLength(8 / p.radius);
 	p.vel.setAngle(ship.angle + (1 - Math.random() * 2) * (Math.PI / 18));
 	p.vel.mul(-1);
@@ -239,15 +251,44 @@ function updateParticles()
 	}
 }
 
+function updateBullets()
+{
+	var i = bullets.length - 1;
+
+	for(i; i > -1; --i)
+	{
+		var b = bullets[i];
+
+		if(b.blacklisted)
+		{
+			b.reset();
+
+			bullets.splice(bullets.indexOf(b), 1);
+			bulletPool.disposeElement(b);
+
+			continue;
+		}
+
+		b.update();
+
+		if(b.pos.getX() > screenWidth) b.blacklisted = true;
+		else if(b.pos.getX() < 0) b.blacklisted = true;
+
+		if(b.pos.getY() > screenHeight) b.blacklisted = true;
+		else if(b.pos.getY() < 0) b.blacklisted = true;
+	}
+}
+
 function render()
 {
 	context.fillStyle = '#262626';
-	context.globalAlpha = 1;
+	context.globalAlpha = 0.6;
 	context.fillRect(0, 0, screenWidth, screenHeight);
 	context.globalAlpha = 1;
 
 	renderShip();
 	renderParticles();
+	renderBullets();
 }
 
 function renderShip()
@@ -257,7 +298,7 @@ function renderShip()
 	context.rotate(ship.angle);
 
 	context.strokeStyle = '#FFF';
-	context.lineWidth = (Math.random() > 0.9) ? 3 : 2;
+	context.lineWidth = (Math.random() > 0.9) ? 2 : 1;
 	context.beginPath();
 	context.moveTo(10, 0);
 	context.lineTo(-10, -10);
@@ -271,7 +312,7 @@ function renderShip()
 
 function renderParticles()
 {
-	//inverse for = more performance.
+	//inverse for loop = more performance.
 
 	var i = particles.length - 1;
 
@@ -280,9 +321,45 @@ function renderParticles()
 		var p = particles[i];
 
 		context.beginPath();
-		context.fillStyle = p.color;
+		context.strokeStyle = p.color;
 		context.arc(p.pos.getX(), p.pos.getY(), p.radius, 0, doublePI);
-		if(Math.random() > 0.2) context.fill();
+		if(Math.random() > 0.4) context.stroke();
 		context.closePath();
 	}
+}
+
+function renderBullets()
+{
+	//inverse for loop = more performance.
+
+	var i = bullets.length - 1;
+
+	for(i; i > -1; --i)
+	{
+		var b = bullets[i];
+
+		context.beginPath();
+		context.strokeStyle = b.color;
+		context.arc(b.pos.getX(), b.pos.getY(), b.radius, 0, doublePI);
+		if(Math.random() > 0.2) context.stroke();
+		context.closePath();
+	}
+}
+
+function generateShot()
+{
+	var b = bulletPool.getElement();
+
+	//if the bullet pool doesn't have more elements, will return 'null'.
+
+	if(!b) return;
+
+	b.radius = 1;
+	b.pos.setXY(ship.pos.getX() + Math.cos(ship.angle) * 14, ship.pos.getY() + Math.sin(ship.angle) * 14);
+	b.vel.setLength(8);
+	b.vel.setAngle(ship.angle);
+
+	//bullets[bullets.length] = b; same as: bullets.push(b);
+
+	bullets[bullets.length] = b;
 }
