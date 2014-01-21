@@ -206,8 +206,8 @@ function updateShip()
 
 	if(keyUp)
 	{
-		ship.thrust.setAngle(ship.angle);
 		ship.thrust.setLength(0.1);
+		ship.thrust.setAngle(ship.angle);
 
 		generateThrustParticle();
 	}
