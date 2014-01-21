@@ -30,7 +30,7 @@ var Ship = (function()
 			this.vel.add(this.thrust);
 			this.pos.add(this.vel);
 
-			if(this.vel.getLength() > 4) this.vel.setLength(4);
+			if(this.vel.getLength() > 5) this.vel.setLength(5);
 
 			++this.bulletDelay;
 		},

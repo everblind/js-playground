@@ -16,6 +16,9 @@ var particles;
 var bulletPool;
 var bullets;
 
+var asteroidPool;
+var asteroids;
+
 var hScan;
 
 //keyboard vars
@@ -47,6 +50,7 @@ window.onload = function()
 	keyboardInit();
 	particleInit();
 	bulletInit();
+	asteroidInit();
 	shipInit();
 
 	loop();
@@ -166,8 +170,14 @@ function particleInit()
 
 function bulletInit()
 {
-	bulletPool = Pool.create(Bullet, 100);
+	bulletPool = Pool.create(Bullet, 40);
 	bullets = [];
+}
+
+function asteroidInit()
+{
+	asteroidPool = Pool.create(Asteroid, 30);
+	asteroids = [];
 }
 
 function shipInit()
@@ -180,6 +190,7 @@ function loop()
 	updateShip();
 	updateParticles();
 	updateBullets();
+	updateAsteroids();
 	render();
 
 	getAnimationFrame(loop);
@@ -283,23 +294,77 @@ function updateBullets()
 	}
 }
 
+function updateAsteroids()
+{
+	var i = asteroids.length - 1;
+
+	for(i; i > -1; --i)
+	{
+		var a = asteroids[i];
+
+		if(a.blacklisted)
+		{
+			a.reset();
+
+			asteroids.splice(asteroids.indexOf(a), 1);
+			asteroidPool.disposeElement(a);
+
+			continue;
+		}
+
+		a.update();
+
+		if(a.pos.getX() > screenWidth + a.radius) a.pos.setX(-a.radius);
+		else if(a.pos.getX() < -a.radius) a.pos.setX(screenWidth + a.radius);
+
+		if(a.pos.getY() > screenHeight + a.radius) a.pos.setY(-a.radius);
+		else if(a.pos.getY() < -a.radius) a.pos.setY(screenHeight + a.radius);
+	}
+
+	if(asteroids.length < 5)
+	{
+		generateAsteroid();
+	}
+}
+
+function generateAsteroid()
+{
+	console.log('asteroid created!');
+
+	var a = asteroidPool.getElement();
+
+	//if the bullet pool doesn't have more elements, will return 'null'.
+
+	if(!a) return;
+
+	a.radius = 60;
+	a.pos.setXY(screenWidth * Math.random(), screenHeight * Math.random());
+	a.vel.setLength(1);
+	a.vel.setAngle(Math.random() * (Math.PI * 2));
+
+	//bullets[bullets.length] = b; same as: bullets.push(b);
+
+	asteroids[asteroids.length] = a;
+}
+
 function render()
 {
 	context.fillStyle = '#262626';
-	context.globalAlpha = 0.6;
+	context.globalAlpha = 0.4;
 	context.fillRect(0, 0, screenWidth, screenHeight);
 	context.globalAlpha = 1;
 
 	renderShip();
 	renderParticles();
 	renderBullets();
+	renderAsteroids();
 	renderScanlines();
 }
 
 function renderShip()
 {
 	context.save();
-	context.translate(ship.pos.getX(), ship.pos.getY());
+	context.translate(ship.pos.getX() >> 0, ship.pos.getY() >> 0);
 	context.rotate(ship.angle);
 
 	context.strokeStyle = '#FFF';
@@ -327,7 +392,7 @@ function renderParticles()
 
 		context.beginPath();
 		context.strokeStyle = p.color;
-		context.arc(p.pos.getX(), p.pos.getY(), p.radius, 0, doublePI);
+		context.arc(p.pos.getX() >> 0, p.pos.getY() >> 0, p.radius, 0, doublePI);
 		if(Math.random() > 0.4) context.stroke();
 		context.closePath();
 	}
@@ -345,7 +410,25 @@ function renderBullets()
 
 		context.beginPath();
 		context.strokeStyle = b.color;
-		context.arc(b.pos.getX(), b.pos.getY(), b.radius, 0, doublePI);
+		context.arc(b.pos.getX() >> 0, b.pos.getY() >> 0, b.radius, 0, doublePI);
+		if(Math.random() > 0.2) context.stroke();
+		context.closePath();
+	}
+}
+
+function renderAsteroids()
+{
+	//inverse for loop = more performance.
+
+	var i = asteroids.length - 1;
+
+	for(i; i > -1; --i)
+	{
+		var a = asteroids[i];
+
+		context.beginPath();
+		context.strokeStyle = a.color;
+		context.arc(a.pos.getX() >> 0, a.pos.getY() >> 0, a.radius, 0, doublePI);
 		if(Math.random() > 0.2) context.stroke();
 		context.closePath();
 	}
@@ -357,7 +440,7 @@ function renderScanlines()
 
 	var i = hScan;
 
-	context.globalAlpha = 0.1;
+	context.globalAlpha = 0.05;
 	context.lineWidth = 1;
 
 	for(i; i > -1; --i)
