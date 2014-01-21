@@ -191,6 +191,9 @@ function loop()
 	updateParticles();
 	updateBullets();
 	updateAsteroids();
+
+	checkCollisions();
+
 	render();
 
 	getAnimationFrame(loop);
@@ -323,28 +326,118 @@ function updateAsteroids()
 
 	if(asteroids.length < 5)
 	{
-		generateAsteroid();
+		generateAsteroid(screenWidth * Math.random(), screenHeight * Math.random(), 60 , 'b');
 	}
 }
 
-function generateAsteroid()
+function generateAsteroid(x, y, radius, type)
 {
-	console.log('asteroid created!');
-
 	var a = asteroidPool.getElement();
 
 	//if the bullet pool doesn't have more elements, will return 'null'.
 
 	if(!a) return;
 
-	a.radius = 60;
-	a.pos.setXY(screenWidth * Math.random(), screenHeight * Math.random());
+	a.radius = radius;
+	a.type = type;
+	a.pos.setXY(x, y);
 	a.vel.setLength(1);
 	a.vel.setAngle(Math.random() * (Math.PI * 2));
 
 	//bullets[bullets.length] = b; same as: bullets.push(b);
 
 	asteroids[asteroids.length] = a;
+}
+
+function checkCollisions()
+{
+	checkBulletAsteroidCollisions();
+}
+
+function checkBulletAsteroidCollisions()
+{
+	var i = bullets.length - 1;
+	var j;
+
+	for(i; i > -1; --i)
+	{
+		j = asteroids.length - 1;
+
+		for(j; j > -1; --j)
+		{
+			var b = bullets[i];
+			var a = asteroids[j];
+
+			checkDistanceCollision(b, a);
+		}
+	}
+}
+
+function checkDistanceCollision(obj1, obj2)
+{
+	var vx = obj1.pos.getX() - obj2.pos.getX();
+	var vy = obj1.pos.getY() - obj2.pos.getY();
+	var vec = Vec2D.create(vx, vy);
+
+	if(vec.getLength() < obj1.radius + obj2.radius)
+	{
+		obj1.blacklisted = true;
+
+		destroyAsteroid(obj2);
+	}
+}
+
+function destroyAsteroid(asteroid)
+{
+	asteroid.blacklisted = true;
+
+	generateAsteroidExplosion(asteroid);
+	resolveAsteroidType(asteroid);
+}
+
+function generateAsteroidExplosion(asteroid)
+{
+	var i = 18;
+
+	for(i; i > -1; --i)
+	{
+		var p = particlePool.getElement();
+
+		//if the particle pool doesn't have more elements, will return 'null'.
+
+		if(!p) return;
+
+		p.radius = Math.random() * (asteroid.radius >> 2) + 2;
+		p.lifeSpan = 80;
+		p.color = '#FF5900';
+		p.vel.setLength(20 / p.radius);
+		p.vel.setAngle(ship.angle + (1 - Math.random() * 2) * doublePI);
+		p.pos.setXY(asteroid.pos.getX() + Math.cos(p.vel.getAngle()) * (asteroid.radius * 0.8), asteroid.pos.getY() + Math.sin(p.vel.getAngle()) * (asteroid.radius * 0.8));
+
+		//particles[particles.length] = p; same as: particles.push(p);
+
+		particles[particles.length] = p;
+	}
+}
+
+function resolveAsteroidType(asteroid)
+{
+	switch(asteroid.type)
+	{
+		case 'b':
+
+		generateAsteroid(asteroid.pos.getX(), asteroid.pos.getY(), 40, 'm');
+		generateAsteroid(asteroid.pos.getX(), asteroid.pos.getY(), 40, 'm');
+
+		break;
+
+		case 'm':
+
+		generateAsteroid(asteroid.pos.getX(), asteroid.pos.getY(), 20, 's');
+		generateAsteroid(asteroid.pos.getX(), asteroid.pos.getY(), 20, 's');
+
+		break;
+	}
 }
 
 function render()
@@ -427,9 +520,21 @@ function renderAsteroids()
 		var a = asteroids[i];
 
 		context.beginPath();
+		context.lineWidth = (Math.random() > 0.2) ? 4 : 3;
 		context.strokeStyle = a.color;
-		context.arc(a.pos.getX() >> 0, a.pos.getY() >> 0, a.radius, 0, doublePI);
+
+		var j = a.sides;
+
+		context.moveTo((a.pos.getX() + Math.cos(doublePI * (j / a.sides) + a.angle) * a.radius) >> 0, (a.pos.getY() + Math.sin(doublePI * (j / a.sides) + a.angle) * a.radius) >> 0);
+
+		for(j; j > -1; --j)
+		{
+			context.lineTo((a.pos.getX() + Math.cos(doublePI * (j / a.sides) + a.angle) * a.radius) >> 0, (a.pos.getY() + Math.sin(doublePI * (j / a.sides) + a.angle) * a.radius) >> 0);
+			
+		}
+
 		if(Math.random() > 0.2) context.stroke();
+		
 		context.closePath();
 	}
 }
