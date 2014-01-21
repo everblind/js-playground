@@ -16,6 +16,8 @@ var particles;
 var bulletPool;
 var bullets;
 
+var hScan;
+
 //keyboard vars
 
 var keyLeft = false;
@@ -59,6 +61,8 @@ window.onresize = function()
 
 	canvas.width = screenWidth;
 	canvas.height = screenHeight;
+
+	hScan = (screenHeight / 4) >> 0;
 };
 
 function keyboardInit()
@@ -289,6 +293,7 @@ function render()
 	renderShip();
 	renderParticles();
 	renderBullets();
+	renderScanlines();
 }
 
 function renderShip()
@@ -344,6 +349,27 @@ function renderBullets()
 		if(Math.random() > 0.2) context.stroke();
 		context.closePath();
 	}
+}
+
+function renderScanlines()
+{
+	//inverse for loop = more performance.
+
+	var i = hScan;
+
+	context.globalAlpha = 0.1;
+	context.lineWidth = 1;
+
+	for(i; i > -1; --i)
+	{
+		context.beginPath();
+		context.moveTo(0, i * 4);
+		context.lineTo(screenWidth, i * 4);
+		context.strokeStyle = (Math.random() > 0.0001) ? '#FFF' : '#222';
+		context.stroke();
+	}
+
+	context.globalAlpha = 1;
 }
 
 function generateShot()
