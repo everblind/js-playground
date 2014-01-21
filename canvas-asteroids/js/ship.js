@@ -10,6 +10,9 @@ var Ship = (function()
 		obj.pos = Vec2D.create(x, y);
 		obj.vel = Vec2D.create(0, 0);
 		obj.thrust = Vec2D.create(0, 0);
+		obj.idle = false;
+		obj.radius = 8;
+		obj.idleDelay = 0;
 
 		return obj;
 	};
@@ -24,6 +27,8 @@ var Ship = (function()
 		thrust: null,
 		ref: null,
 		bulletDelay: null,
+		idle: null,
+		radius: null,
 
 		update: function()
 		{
@@ -33,6 +38,18 @@ var Ship = (function()
 			if(this.vel.getLength() > 5) this.vel.setLength(5);
 
 			++this.bulletDelay;
+
+			if(this.idle)
+			{
+				if(++this.idleDelay > 80)
+				{
+					this.idleDelay = 0;
+					this.idle = false;
+
+					this.pos.setXY(this.ref.screenWidth >> 1, this.ref.screenHeight >> 1);
+					this.vel.setXY(0, 0);
+				}
+			}
 		},
 
 		shoot: function()

@@ -203,6 +203,8 @@ function updateShip()
 {
 	ship.update();
 
+	if(ship.idle) return;
+
 	if(keySpace) ship.shoot();
 	if(keyLeft) ship.angle -= 0.1;
 	if(keyRight) ship.angle += 0.1;
@@ -236,6 +238,7 @@ function generateThrustParticle()
 	if(!p) return;
 
 	p.radius = Math.random() * 3 + 2;
+	p.color = '#FFF';
 	p.lifeSpan = 80;
 	p.pos.setXY(ship.pos.getX() + Math.cos(ship.angle) * -14, ship.pos.getY() + Math.sin(ship.angle) * -14);
 	p.vel.setLength(8 / p.radius);
@@ -326,7 +329,9 @@ function updateAsteroids()
 
 	if(asteroids.length < 5)
 	{
-		generateAsteroid(screenWidth * Math.random(), screenHeight * Math.random(), 60 , 'b');
+		var factor = (Math.random() * 2) >> 0;
+
+		generateAsteroid(screenWidth * factor, screenHeight * factor, 60 , 'b');
 	}
 }
 
@@ -352,6 +357,7 @@ function generateAsteroid(x, y, radius, type)
 function checkCollisions()
 {
 	checkBulletAsteroidCollisions();
+	checkShipAsteroidCollisions();
 }
 
 function checkBulletAsteroidCollisions()
@@ -368,8 +374,59 @@ function checkBulletAsteroidCollisions()
 			var b = bullets[i];
 			var a = asteroids[j];
 
-			checkDistanceCollision(b, a);
+			if(checkDistanceCollision(b, a))
+			{
+				b.blacklisted = true;
+
+				destroyAsteroid(a);
+			}
 		}
+	}
+}
+
+function checkShipAsteroidCollisions()
+{
+	var i = asteroids.length - 1;
+
+	for(i; i > -1; --i)
+	{
+		var a = asteroids[i];
+		var s = ship;
+
+		if(checkDistanceCollision(a, s))
+		{
+			if(s.idle) return;
+
+			s.idle = true;
+
+			generateShipExplosion();
+			destroyAsteroid(a);
+		}
+	}
+}
+
+function generateShipExplosion()
+{
+	var i = 18;
+
+	for(i; i > -1; --i)
+	{
+		var p = particlePool.getElement();
+
+		//if the particle pool doesn't have more elements, will return 'null'.
+
+		if(!p) return;
+
+		p.radius = Math.random() * 6 + 2;
+		p.lifeSpan = 80;
+		p.color = '#FFF';
+		p.vel.setLength(20 / p.radius);
+		p.vel.setAngle(ship.angle + (1 - Math.random() * 2) * doublePI);
+		p.pos.setXY(ship.pos.getX() + Math.cos(p.vel.getAngle()) * (ship.radius * 0.8), ship.pos.getY() + Math.sin(p.vel.getAngle()) * (ship.radius * 0.8));
+
+		//particles[particles.length] = p; same as: particles.push(p);
+
+		particles[particles.length] = p;
 	}
 }
 
@@ -381,10 +438,10 @@ function checkDistanceCollision(obj1, obj2)
 
 	if(vec.getLength() < obj1.radius + obj2.radius)
 	{
-		obj1.blacklisted = true;
-
-		destroyAsteroid(obj2);
+		return true;
 	}
+
+	return false;
 }
 
 function destroyAsteroid(asteroid)
@@ -456,6 +513,8 @@ function render()
 
 function renderShip()
 {
+	if(ship.idle) return;
+
 	context.save();
 	context.translate(ship.pos.getX() >> 0, ship.pos.getY() >> 0);
 	context.rotate(ship.angle);
@@ -570,7 +629,7 @@ function generateShot()
 
 	b.radius = 1;
 	b.pos.setXY(ship.pos.getX() + Math.cos(ship.angle) * 14, ship.pos.getY() + Math.sin(ship.angle) * 14);
-	b.vel.setLength(8);
+	b.vel.setLength(10);
 	b.vel.setAngle(ship.angle);
 
 	//bullets[bullets.length] = b; same as: bullets.push(b);
