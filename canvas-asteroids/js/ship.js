@@ -41,13 +41,12 @@ var Ship = (function()
 
 			if(this.idle)
 			{
-				if(++this.idleDelay > 80)
+				if(++this.idleDelay > 120)
 				{
 					this.idleDelay = 0;
 					this.idle = false;
 
-					this.pos.setXY(this.ref.screenWidth >> 1, this.ref.screenHeight >> 1);
-					this.vel.setXY(0, 0);
+					this.ref.resetGame();
 				}
 			}
 		},

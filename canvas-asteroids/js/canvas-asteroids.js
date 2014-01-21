@@ -20,6 +20,7 @@ var asteroidPool;
 var asteroids;
 
 var hScan;
+var asteroidVelFactor = 0;
 
 //keyboard vars
 
@@ -346,12 +347,13 @@ function generateAsteroid(x, y, radius, type)
 	a.radius = radius;
 	a.type = type;
 	a.pos.setXY(x, y);
-	a.vel.setLength(1);
+	a.vel.setLength(1 + asteroidVelFactor);
 	a.vel.setAngle(Math.random() * (Math.PI * 2));
 
 	//bullets[bullets.length] = b; same as: bullets.push(b);
 
 	asteroids[asteroids.length] = a;
+	asteroidVelFactor += 0.025;
 }
 
 function checkCollisions()
@@ -635,4 +637,25 @@ function generateShot()
 	//bullets[bullets.length] = b; same as: bullets.push(b);
 
 	bullets[bullets.length] = b;
+}
+
+function resetGame()
+{
+	asteroidVelFactor = 0;
+
+	ship.pos.setXY(screenWidth >> 1, screenHeight >> 1);
+	ship.vel.setXY(0, 0);
+
+	resetAsteroids();
+}
+
+function resetAsteroids()
+{
+	var i = asteroids.length - 1;
+
+	for(i; i > -1; --i)
+	{
+		var a = asteroids[i];
+		a.blacklisted = true;
+	}
 }
