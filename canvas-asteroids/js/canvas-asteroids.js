@@ -62,29 +62,33 @@ function keyboardInit()
 	{
 		switch(e.keyCode)
 		{
-			//key A
+			//key A or LEFT
 			case 65:
+			case 37:
 
 			keyLeft = true;
 
 			break;
 
-			//key W
+			//key W or UP
 			case 87:
+			case 38:
 
 			keyUp = true;
 
 			break;
 
-			//key D
+			//key D or RIGHT
 			case 68:
+			case 39:
 
 			keyRight = true;
 
 			break;
 
-			//key S
+			//key S or DOWN
 			case 83:
+			case 40:
 
 			keyDown = true;
 
@@ -103,29 +107,33 @@ function keyboardInit()
 	{
 		switch(e.keyCode)
 		{
-			//key A
+			//key A or LEFT
 			case 65:
+			case 37:
 
 			keyLeft = false;
 
 			break;
 
-			//key W
+			//key W or UP
 			case 87:
+			case 38:
 
 			keyUp = false;
 
 			break;
 
-			//key D
+			//key D or RIGHT
 			case 68:
+			case 39:
 
 			keyRight = false;
 
 			break;
 
-			//key S
+			//key S or DOWN
 			case 83:
+			case 40:
 
 			keyDown = false;
 
@@ -134,7 +142,7 @@ function keyboardInit()
 			//key Space
 			case 32:
 
-			
+
 
 			break;
 		}
@@ -197,11 +205,11 @@ function generateThrustParticle()
 	if(!p) return;
 
 	p.radius = Math.random() * 2 + 1;
-	p.color = '#CCC';
-	p.lifeSpan = 40;
-	p.pos.setXY(ship.pos.getX() + Math.cos(ship.angle) * -10, ship.pos.getY() + Math.sin(ship.angle) * -10);
-	p.vel.setLength(6 / p.radius);
-	p.vel.setAngle(ship.angle + (1 - Math.random() * 2) * (Math.PI / 12));
+	p.color = '#F0EE00';
+	p.lifeSpan = 80;
+	p.pos.setXY(ship.pos.getX() + Math.cos(ship.angle) * -12, ship.pos.getY() + Math.sin(ship.angle) * -12);
+	p.vel.setLength(8 / p.radius);
+	p.vel.setAngle(ship.angle + (1 - Math.random() * 2) * (Math.PI / 18));
 	p.vel.mul(-1);
 
 	//particles[particles.length] = p; = particles.push(p);
@@ -234,7 +242,7 @@ function updateParticles()
 function render()
 {
 	context.fillStyle = '#262626';
-	context.globalAlpha = 0.4;
+	context.globalAlpha = 1;
 	context.fillRect(0, 0, screenWidth, screenHeight);
 	context.globalAlpha = 1;
 
@@ -249,13 +257,13 @@ function renderShip()
 	context.rotate(ship.angle);
 
 	context.strokeStyle = '#FFF';
-	context.lineWidth = 2;
+	context.lineWidth = (Math.random() > 0.9) ? 3 : 2;
 	context.beginPath();
 	context.moveTo(10, 0);
 	context.lineTo(-10, -10);
 	context.lineTo(-10, 10);
 	context.lineTo(10, 0);
-	if(Math.random() < 0.96) context.stroke();
+	context.stroke();
 	context.closePath();
 
 	context.restore();
@@ -274,7 +282,7 @@ function renderParticles()
 		context.beginPath();
 		context.fillStyle = p.color;
 		context.arc(p.pos.getX(), p.pos.getY(), p.radius, 0, doublePI);
-		if(Math.random() < 0.6) context.fill();
+		if(Math.random() > 0.2) context.fill();
 		context.closePath();
 	}
 }

@@ -32,6 +32,9 @@ var Particle = (function()
 		{
 			this.pos.add(this.vel);
 			this.vel.mul(this.fric);
+			this.radius -= 0.025;
+
+			if(this.radius < 0.1) this.radius = 0.1;
 
 			if(this.lifeSpan-- < 0)
 			{
