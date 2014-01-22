@@ -1,4 +1,4 @@
-var Pool = (function()
+define(function()
 {
 	//exposed methods:
 
@@ -49,4 +49,4 @@ var Pool = (function()
 	};
 
 	return {create:create};
-}());
+});

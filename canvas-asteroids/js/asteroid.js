@@ -1,4 +1,4 @@
-var Asteroid = (function()
+define(['vec2d'], function(Vec2D)
 {
 	//exposed methods:
 
@@ -45,4 +45,4 @@ var Asteroid = (function()
 	};
 
 	return {create:create};
-}());
+});

@@ -1,4 +1,4 @@
-var Bullet = (function()
+define(['vec2d'], function(Vec2D)
 {
 	//exposed methods:
 
@@ -36,4 +36,4 @@ var Bullet = (function()
 	};
 
 	return {create:create};
-}());
+});

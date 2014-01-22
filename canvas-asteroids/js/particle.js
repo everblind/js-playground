@@ -1,4 +1,4 @@
-var Particle = (function()
+define(['vec2d'], function(Vec2D)
 {
 	//exposed methods:
 
@@ -49,4 +49,4 @@ var Particle = (function()
 	};
 
 	return {create:create};
-}());
+});

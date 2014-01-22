@@ -1,6 +1,8 @@
-var Ship = (function()
+define(['vec2d'], function(Vec2D)
 {
 	//exposed methods:
+
+	console.log(Vec2D);
 
 	var create = function(x, y, ref)
 	{
@@ -62,4 +64,4 @@ var Ship = (function()
 	};
 
 	return {create:create};
-}());
+});

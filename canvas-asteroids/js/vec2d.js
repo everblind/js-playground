@@ -1,4 +1,4 @@
-var Vec2D = (function()
+define(function()
 {
 	//exposed methods:
 
@@ -93,4 +93,4 @@ var Vec2D = (function()
 	};
 
 	return {create:create};
-}());
+});
