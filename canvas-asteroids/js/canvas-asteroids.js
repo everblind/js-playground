@@ -72,8 +72,11 @@ window.onresize = function()
 
 function keyboardInit()
 {
-	window.onkeydown = function(e)
+	canvas.addEventListener("keydown", function(e)
 	{
+		e.preventDefault();
+		e.stopPropagation();
+
 		switch(e.keyCode)
 		{
 			//key A or LEFT
@@ -115,10 +118,15 @@ function keyboardInit()
 
 			break;
 		}
-	};
 
-	window.onkeyup = function(e)
+		return false;
+	});
+
+	canvas.addEventListener("keyup", function(e)
 	{
+		e.preventDefault();
+		e.stopPropagation();
+
 		switch(e.keyCode)
 		{
 			//key A or LEFT
@@ -160,7 +168,9 @@ function keyboardInit()
 
 			break;
 		}
-	};
+
+		return false;
+	});
 }
 
 function particleInit()
