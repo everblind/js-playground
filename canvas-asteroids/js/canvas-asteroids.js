@@ -48,7 +48,7 @@ window.onload = function()
 
 	window.onresize();
 
-	keyboardInit(canvas);
+	keyboardInit();
 	particleInit();
 	bulletInit();
 	asteroidInit();
@@ -70,12 +70,13 @@ window.onresize = function()
 	hScan = (screenHeight / 4) >> 0;
 };
 
-function keyboardInit(canvasEl)
+function keyboardInit()
 {
-	canvasEl.addEventListener("keydown", function(e)
+	canvas.addEventListener("keydown", function(e)
 	{
 		e.preventDefault();
 		e.stopPropagation();
+
 		switch(e.keyCode)
 		{
 			//key A or LEFT
@@ -117,13 +118,15 @@ function keyboardInit(canvasEl)
 
 			break;
 		}
-	return false;
+
+		return false;
 	});
 
-	canvasEl.addEventListener("keyup", function(e)
+	canvas.addEventListener("keyup", function(e)
 	{
 		e.preventDefault();
 		e.stopPropagation();
+
 		switch(e.keyCode)
 		{
 			//key A or LEFT
@@ -165,7 +168,8 @@ function keyboardInit(canvasEl)
 
 			break;
 		}
-	return false;
+
+		return false;
 	});
 }
 
