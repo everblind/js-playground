@@ -662,5 +662,5 @@ define(['asteroid', 'bullet', 'particle', 'pool', 'ship', 'vec2d'], function(Ast
 		}
 	}
 
-	return {start:start, generateShot:generateShot};
+	return {start:start};
 });
