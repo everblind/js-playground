@@ -4,7 +4,7 @@ Collection of my Javascript experiments, mostly published on codepen.io. Feel fr
 
 Demos:
 =============
-* Canvas Asteroids: http://codepen.io/everblind/pen/bzBsp
+* Canvas Asteroids: http://codepen.io/everblind/details/bzBsp
 
 License
 =============
