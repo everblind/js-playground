@@ -115,6 +115,8 @@ function keyboardInit()
 
 			break;
 		}
+
+		e.preventDefault();
 	};
 
 	window.onkeyup = function(e)
@@ -160,6 +162,8 @@ function keyboardInit()
 
 			break;
 		}
+
+		e.preventDefault();
 	};
 }
 
